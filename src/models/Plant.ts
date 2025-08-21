@@ -24,15 +24,29 @@ export const Plant = sequelize.define<Model<TPlant, TPlantCreateInput>>(
     },
     waterFrequency: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
+      defaultValue: 0,
     },
     imageUrl: {
       type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "/images/default-plant.jpg",
+    },
+    userId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
+      field: "user_id",
+      references: {
+        model: "users",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
     },
   },
   {
     tableName: "plants",
     timestamps: true,
+    underscored: true,
   }
 );
