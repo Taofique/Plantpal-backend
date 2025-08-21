@@ -5,6 +5,7 @@ import cors from "cors"; // Import cors
 import { connectDB } from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import plantRoutes from "./routes/plantRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 // Your routes
 app.use("/users", userRoutes);
 app.use("/plants", plantRoutes);
+app.use("/activities", activityRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
   res.send("🌱 PlantPal API is running!");
