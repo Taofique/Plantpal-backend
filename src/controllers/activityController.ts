@@ -43,6 +43,31 @@ export const createActivity = async (
   }
 };
 
+// GET /activities/all
+export const getAllActivities = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    const activities = await Activity.findAll({
+      where: { userId },
+      order: [["dueAt", "ASC"]],
+    });
+
+    res.status(200).json(activities.map((a) => a.get({ plain: true })));
+  } catch (error) {
+    console.error("Error fetching all activities", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // GET activities/plant/:id
 
 export const getActivitiesByPlant = async (

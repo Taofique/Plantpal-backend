@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import plantRoutes from "./routes/plantRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use("/users", userRoutes);
 app.use("/plants", plantRoutes);
 app.use("/activities", activityRoutes);
+app.use("/comments", commentRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
   res.send("🌱 PlantPal API is running!");

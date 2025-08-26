@@ -46,6 +46,20 @@ export const createPlant = async (
   }
 };
 
+//............Get all Plant public route GET /public
+
+export const getAllPlantsPublic = async (req: Request, res: Response) => {
+  try {
+    const plants = await Plant.findAll({
+      attributes: ["id", "name", "imageUrl"],
+    });
+    res.json(plants);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch plants" });
+  }
+};
+
 //.............. Get all Plants..... GET /plants/all
 
 export const getAllPlants = async (

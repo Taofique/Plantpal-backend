@@ -7,11 +7,10 @@ import type { TUserCreateInput, TUser } from "../types/user.js";
 
 dotenv.config();
 
-// Ensure we have the JWT secret typed correctly
 const JWT_SECRET: Secret = process.env.JWT_SECRET ?? "";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
 
-//......................... Register ........................................//
+// ---------------- Register ---------------- //
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, email, password } = req.body as TUserCreateInput;
@@ -30,17 +29,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       password: hashedPassword,
     });
 
-    // Exclude password before sending response
     const { password: _, ...userData } = user.get({ plain: true });
     res.status(201).json(userData);
   } catch (error) {
-    console.error(error);
+    console.error("Register error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-//......................... Login ........................................//
-
+// ---------------- Login ---------------- //
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is not configured");
 }
@@ -76,7 +73,32 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ user: userData, token });
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ---------------- Get Current User (/me) ---------------- //
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // `req.user` comes from protect middleware
+    if (!req.user) {
+      res.status(401).json({ message: "Not authorized" });
+      return;
+    }
+
+    const user = await User.findByPk(req.user.id, {
+      attributes: ["id", "username", "email", "createdAt"],
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json(user.get({ plain: true }));
+  } catch (error) {
+    console.error("GetMe error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
