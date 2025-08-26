@@ -10,7 +10,7 @@ User.hasMany(Plant, {
 });
 Plant.belongsTo(User, {
   foreignKey: "userId",
-  as: "user",
+  as: "owner",
 });
 
 // User & Activity

@@ -102,3 +102,31 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// ---------------- Get User by ID ---------------- //
+export const getUserById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = Number(req.params.id);
+    if (isNaN(userId)) {
+      res.status(400).json({ message: "Invalid user ID" });
+      return;
+    }
+
+    const user = await User.findByPk(userId, {
+      attributes: ["id", "username", "email", "createdAt"], // exclude password
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.status(200).json(user.get({ plain: true }));
+  } catch (error) {
+    console.error("GetUserById error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

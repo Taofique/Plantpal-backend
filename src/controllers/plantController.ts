@@ -2,16 +2,13 @@ import type { Request, Response } from "express";
 import { Plant, User } from "../models/index.js";
 import type { TPlant, TPlantCreateInput } from "../types/plant.js";
 
-//........create Plant......POST /plants/create
-
+// -------- Create Plant (POST /plants/create) --------
 export const createPlant = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    // Get the logged-in user's ID from the authentication middleware
     const userId = req.user?.id;
-
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
       return;
@@ -20,7 +17,7 @@ export const createPlant = async (
     const { name, description, category, waterFrequency, imageUrl } =
       req.body as TPlantCreateInput;
 
-    // Check if the user already has a plant with this name
+    // Check for existing plant
     const existingPlant = await Plant.findOne({ where: { name, userId } });
     if (existingPlant) {
       res
@@ -35,19 +32,17 @@ export const createPlant = async (
       category,
       waterFrequency,
       imageUrl,
-      userId, // Add the userId to link the plant to the user
+      userId,
     });
 
-    const plantData = plant.get({ plain: true });
-    res.status(201).json(plantData);
+    res.status(201).json(plant.get({ plain: true }));
   } catch (error) {
-    console.error(error);
+    console.error("Error creating plant:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-//............Get all Plant public route GET /public
-
+// -------- Get All Public Plants (GET /public) --------
 export const getAllPlantsPublic = async (req: Request, res: Response) => {
   try {
     const plants = await Plant.findAll({
@@ -55,19 +50,51 @@ export const getAllPlantsPublic = async (req: Request, res: Response) => {
     });
     res.json(plants);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching public plants:", error);
     res.status(500).json({ message: "Failed to fetch plants" });
   }
 };
 
-//.............. Get all Plants..... GET /plants/all
+// -------- Get All User Plants Protected route (GET /plants/all) --------
 
 export const getAllPlants = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    // Get the logged-in user's ID from the authentication middleware
+    const allPlants = await Plant.findAll({
+      include: [
+        {
+          model: User,
+          as: "owner", // must match Plant.belongsTo alias
+          attributes: ["username"],
+        },
+      ],
+    });
+
+    const plantsWithUsername = allPlants.map((p) => {
+      const plain = p.get({ plain: true }) as any;
+      return {
+        ...plain,
+        username: plain.owner?.username || "Unknown",
+      };
+    });
+
+    res.status(200).json(plantsWithUsername);
+  } catch (error) {
+    console.error("Error fetching plants", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+//................Get all plants by User Id..........................
+
+// -------- Get All User Plants (GET /plants/all) --------
+export const getAllPlantsByUserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
     const userId = req.user?.id;
 
     if (!userId) {
@@ -75,33 +102,45 @@ export const getAllPlants = async (
       return;
     }
 
-    // Only get plants that belong to the authenticated user
-    const allPlants = await Plant.findAll({ where: { userId } });
-    res.status(200).json(allPlants.map((p) => p.get({ plain: true })));
+    const userPlants = await Plant.findAll({
+      where: { userId }, // ✅ fetch only this user's plants
+      include: [
+        {
+          model: User,
+          as: "owner", // must match Plant.belongsTo alias
+          attributes: ["username"],
+        },
+      ],
+    });
+
+    const plantsWithUsername = userPlants.map((p) => {
+      const plain = p.get({ plain: true }) as any;
+      return {
+        ...plain,
+        username: plain.owner?.username || "Unknown",
+      };
+    });
+
+    res.status(200).json(plantsWithUsername);
   } catch (error) {
     console.error("Error fetching plants", error);
-    res.status(500).json({ messsage: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-//...................Get Plant by ID.......GET /plants/:id
-
+// -------- Get Plant by ID (GET /plants/:id) --------
 export const getPlantById = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    // Get the logged-in user's ID from the authentication middleware
     const userId = req.user?.id;
-
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
       return;
     }
 
     const { id } = req.params;
-
-    // Only find the plant if it belongs to the authenticated user
     const plant = await Plant.findOne({ where: { id, userId } });
 
     if (!plant) {
@@ -116,30 +155,22 @@ export const getPlantById = async (
   }
 };
 
-//...............Update Plant by ID............. PUT /plants/:id
-
+// -------- Update Plant by ID (PUT /plants/:id) --------
 export const updatePlant = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  // debugging log
-
-  console.log("req.user.id:", req.user?.id, "req.params.id:", req.params.id);
-
   try {
-    // Get the logged-in user's ID from the authentication middleware
     const userId = req.user?.id;
-
+    const { id } = req.params;
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
       return;
     }
 
-    const { id } = req.params;
     const { name, description, category, waterFrequency, imageUrl } =
       req.body as Partial<TPlantCreateInput>;
 
-    // Only find the plant if it belongs to the authenticated user
     const existingPlant = await Plant.findOne({ where: { id, userId } });
     if (!existingPlant) {
       res.status(404).json({ message: "Plant not found" });
@@ -147,7 +178,6 @@ export const updatePlant = async (
     }
 
     const updatePlantData: Partial<TPlantCreateInput> = {};
-
     if (name !== undefined) updatePlantData.name = name;
     if (description !== undefined) updatePlantData.description = description;
     if (category !== undefined) updatePlantData.category = category;
@@ -163,31 +193,25 @@ export const updatePlant = async (
     await existingPlant.update(updatePlantData);
     res.status(200).json(existingPlant.get({ plain: true }));
   } catch (error) {
-    console.error("Error updateing plant:", error);
+    console.error("Error updating plant:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-//...............Delete plant by ID......... DELETE /plants/:id
-
+// -------- Delete Plant by ID (DELETE /plants/:id) --------
 export const deletePlant = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    // Get the logged-in user's ID from the authentication middleware
     const userId = req.user?.id;
-
+    const { id } = req.params;
     if (!userId) {
       res.status(401).json({ message: "User not authenticated" });
       return;
     }
 
-    const { id } = req.params;
-
-    // Only find the plant if it belongs to the authenticated user
     const plant = await Plant.findOne({ where: { id, userId } });
-
     if (!plant) {
       res.status(404).json({ message: "Plant not found" });
       return;
