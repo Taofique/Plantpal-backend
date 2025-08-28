@@ -7,12 +7,14 @@ import {
   deletePlant,
   getAllPlantsPublic,
   getAllPlantsByUserId,
+  searchPlant,
 } from "../controllers/plantController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
 router.get("/public", getAllPlantsPublic);
+router.get("/search", searchPlant);
 
 router.post("/create", protect, createPlant);
 router.get("/all", protect, getAllPlants);

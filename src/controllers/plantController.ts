@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { Plant, User } from "../models/index.js";
 import type { TPlant, TPlantCreateInput } from "../types/plant.js";
+import { Op } from "sequelize";
 
 // -------- Create Plant (POST /plants/create) --------
 export const createPlant = async (
@@ -221,6 +222,37 @@ export const deletePlant = async (
     res.status(200).json({ message: "Plant Deleted Successfully" });
   } catch (error) {
     console.error("Error deleting plant:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+//......................Search Function(Public)................//
+
+export const searchPlant = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const qRaw = req.query.q as string;
+    const limit = Math.min(Number(req.query.limit) || 5, 20);
+
+    if (!qRaw || !qRaw.trim()) {
+      res.json([]);
+      return;
+    }
+
+    const plants = await Plant.findAll({
+      where: {
+        name: { [Op.iLike]: `%${qRaw.trim()}%` },
+      },
+      attributes: ["id", "name", "imageUrl"], // ✅ only public-safe fields
+      limit,
+      order: [["updatedAt", "DESC"]],
+    });
+
+    res.json(plants.map((p) => p.get({ plain: true })));
+  } catch (error) {
+    console.error("Error searching plants", error);
     res.status(500).json({ message: "Server error" });
   }
 };
