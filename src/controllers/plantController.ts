@@ -156,6 +156,38 @@ export const getPlantById = async (
   }
 };
 
+// -------- Get Plant by ID Public (GET /plants/public/:id) --------
+export const getPlantByIdPublic = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const plant = await Plant.findByPk(id, {
+      attributes: [
+        "id",
+        "name",
+        "description",
+        "category",
+        "waterFrequency",
+        "imageUrl",
+        "userId",
+      ],
+    });
+
+    if (!plant) {
+      res.status(404).json({ message: "Plant not found" });
+      return;
+    }
+
+    res.status(200).json(plant.get({ plain: true }));
+  } catch (error) {
+    console.error("Error fetching public plant by ID:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // -------- Update Plant by ID (PUT /plants/:id) --------
 export const updatePlant = async (
   req: Request,
@@ -245,7 +277,7 @@ export const searchPlant = async (
       where: {
         name: { [Op.iLike]: `%${qRaw.trim()}%` },
       },
-      attributes: ["id", "name", "imageUrl"], // ✅ only public-safe fields
+      attributes: ["id", "name", "imageUrl"],
       limit,
       order: [["updatedAt", "DESC"]],
     });
