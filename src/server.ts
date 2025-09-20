@@ -9,9 +9,7 @@ import commentRoutes from "./routes/commentRoutes.js";
 
 const app = express();
 
-const allowedOrigins = [
-  "https://plantpal-frontend-6ceu-6tdxpoclh-taofique-islams-projects.vercel.app",
-];
+const allowedOrigins = ["https://plantpal-frontend.vercel.app/"];
 
 app.use(
   cors({
