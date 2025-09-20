@@ -9,12 +9,19 @@ import commentRoutes from "./routes/commentRoutes.js";
 
 const app = express();
 
+const allowedOrigins = [
+  "https://plantpal-frontend-6ceu-6tdxpoclh-taofique-islams-projects.vercel.app",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://plantpal-frontend-6ceu-6tdxpoclh-taofique-islams-projects.vercel.app",
-    ],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true); // allow request
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -34,5 +41,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, async () => {
   await connectDB();
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
