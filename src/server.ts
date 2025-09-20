@@ -9,13 +9,16 @@ import commentRoutes from "./routes/commentRoutes.js";
 
 const app = express();
 
+// Allowed origins: add your deployed frontend URL
 const allowedOrigins = [
-  "https://vercel.com/taofique-islams-projects/plantpal-frontend/H4xChnDuyUFP4w8VVtc9JpEL6VaP",
+  "https://plantpal-frontend-51lj90kv8-taofique-islams-projects.vercel.app",
 ];
 
+// CORS middleware
 app.use(
   cors({
     origin: (origin, callback) => {
+      console.log("CORS request from origin:", origin); // debug
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -26,8 +29,10 @@ app.use(
   })
 );
 
+// JSON parser
 app.use(express.json());
 
+// Routes
 app.use("/users", userRoutes);
 app.use("/plants", plantRoutes);
 app.use("/activities", activityRoutes);
@@ -37,6 +42,7 @@ app.get("/", (_req: Request, res: Response) => {
   res.send("🌱 PlantPal API is running!");
 });
 
+// Start server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, async () => {
