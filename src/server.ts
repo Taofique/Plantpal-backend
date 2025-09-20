@@ -12,14 +12,15 @@ const app = express();
 // Allowed origins: add your deployed frontend URL
 const allowedOrigins = [
   "https://plantpal-frontend-51lj90kv8-taofique-islams-projects.vercel.app",
+  "https://plantpal-frontend.vercel.app", // optional canonical domain
+  undefined, // allow requests with no origin (like Postman or some server-to-server calls)
 ];
 
-// CORS middleware
 app.use(
   cors({
     origin: (origin, callback) => {
       console.log("CORS request from origin:", origin); // debug
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
