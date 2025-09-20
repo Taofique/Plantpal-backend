@@ -9,13 +9,15 @@ import commentRoutes from "./routes/commentRoutes.js";
 
 const app = express();
 
-const allowedOrigins = ["https://plantpal-frontend.vercel.app/"];
+const allowedOrigins = [
+  "https://vercel.com/taofique-islams-projects/plantpal-frontend/H4xChnDuyUFP4w8VVtc9JpEL6VaP",
+];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true); // allow request
+        callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }
