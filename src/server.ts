@@ -13,7 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://plantpal-frontend-6ceu.vercel.app/",
+      "https://plantpal-frontend-6ceu-6tdxpoclh-taofique-islams-projects.vercel.app",
     ],
     credentials: true,
   })
