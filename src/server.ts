@@ -12,7 +12,10 @@ const app = express();
 // Allowed origins: add your deployed frontend URL
 const allowedOrigins = [
   "https://plantpal-frontend-51lj90kv8-taofique-islams-projects.vercel.app",
+  "https://vercel.com/taofique-islams-projects/plantpal-frontend/74miy5xqbkTBsdkvCnoXrjXAWHxh",
   "https://plantpal-frontend.vercel.app", // optional canonical domain
+  "https://plantpal-frontend.vercel.app",
+  "plantpal-frontend-3hoe.vercel.app",
   undefined, // allow requests with no origin (like Postman or some server-to-server calls)
 ];
 
