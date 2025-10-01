@@ -1,7 +1,6 @@
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 
-// Only load .env file in development
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
