@@ -14,6 +14,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://plantpal-frontend.vercel.app",
   "https://plantpal-frontend-he4yc1tuz-taofique-islams-projects.vercel.app",
+  "https://plantpal-frontend-92n9gzuwc-taofique-islams-projects.vercel.app", // new deployment
 ];
 
 // Global CORS middleware
