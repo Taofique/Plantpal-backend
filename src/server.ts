@@ -1,3 +1,4 @@
+// server.ts
 import express from "express";
 import type { Request, Response } from "express";
 import cors from "cors";
@@ -9,17 +10,18 @@ import commentRoutes from "./routes/commentRoutes.js";
 
 const app = express();
 
-// Allowed origins: add your deployed frontend URL
+// Allowed origins: local + production + latest Vercel deployment
 const allowedOrigins = [
-  "https://plantpal-frontend.vercel.app", // production domain
-  "https://plantpal-frontend-he4yc1tuz-taofique-islams-projects.vercel.app", // latest Vercel deployment
-  "http://localhost:5173", // optional for local dev
+  "http://localhost:5173", // local dev
+  "https://plantpal-frontend.vercel.app", // main production domain
+  "https://plantpal-frontend-he4yc1tuz-taofique-islams-projects.vercel.app", // current Vercel deployment
 ];
 
+// CORS middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow Postman or server-to-server requests
+      if (!origin) return callback(null, true); // Postman or server-to-server requests
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -28,8 +30,13 @@ app.use(
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // allow common HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"], // allow JSON + JWT
   }),
 );
+
+// Middleware to handle preflight OPTIONS requests
+app.options("*", cors());
 
 // JSON parser
 app.use(express.json());
@@ -40,6 +47,7 @@ app.use("/plants", plantRoutes);
 app.use("/activities", activityRoutes);
 app.use("/comments", commentRoutes);
 
+// Root route
 app.get("/", (_req: Request, res: Response) => {
   res.send("🌱 PlantPal API is running!");
 });
@@ -48,6 +56,10 @@ app.get("/", (_req: Request, res: Response) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, async () => {
-  await connectDB();
-  console.log(`🚀 Server is running on port ${PORT}`);
+  try {
+    await connectDB(); // connect to Supabase/Postgres
+    console.log(`🚀 Server is running on port ${PORT}`);
+  } catch (error) {
+    console.error("❌ Failed to connect to database:", error);
+  }
 });
