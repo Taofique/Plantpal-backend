@@ -1,4 +1,3 @@
-// server.ts
 import express from "express";
 import type { Request, Response } from "express";
 import cors from "cors";
@@ -17,11 +16,13 @@ const allowedOrigins = [
   "https://plantpal-frontend-he4yc1tuz-taofique-islams-projects.vercel.app", // current Vercel deployment
 ];
 
-// CORS middleware
+// Global CORS middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // Postman or server-to-server requests
+      // allow requests with no origin (Postman, server-to-server)
+      if (!origin) return callback(null, true);
+
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -30,15 +31,12 @@ app.use(
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // allow common HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"], // allow JSON + JWT
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // allow standard HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"], // allow JSON + JWT headers
   }),
 );
 
-// Middleware to handle preflight OPTIONS requests
-app.options("*", cors());
-
-// JSON parser
+// JSON parser middleware
 app.use(express.json());
 
 // Routes
