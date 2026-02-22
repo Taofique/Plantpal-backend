@@ -11,26 +11,24 @@ const app = express();
 
 // Allowed origins: add your deployed frontend URL
 const allowedOrigins = [
-  "https://plantpal-frontend-51lj90kv8-taofique-islams-projects.vercel.app",
-  "https://vercel.com/taofique-islams-projects/plantpal-frontend/74miy5xqbkTBsdkvCnoXrjXAWHxh",
-  "https://plantpal-frontend.vercel.app", // optional canonical domain
+  "https://plantpal-frontend-coksxcmuz-taofique-islams-projects.vercel.app",
   "https://plantpal-frontend.vercel.app",
-  "plantpal-frontend-3hoe.vercel.app",
-  undefined, // allow requests with no origin (like Postman or some server-to-server calls)
+  "http://localhost:5173", // optional for local dev
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      console.log("CORS request from origin:", origin); // debug
+      if (!origin) return callback(null, true); // allow Postman or server-to-server requests
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.log("Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-  })
+  }),
 );
 
 // JSON parser
