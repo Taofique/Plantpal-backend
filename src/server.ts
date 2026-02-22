@@ -11,8 +11,8 @@ const app = express();
 
 // Allowed origins: add your deployed frontend URL
 const allowedOrigins = [
-  "https://plantpal-frontend-coksxcmuz-taofique-islams-projects.vercel.app",
-  "https://plantpal-frontend.vercel.app",
+  "https://plantpal-frontend.vercel.app", // production domain
+  "https://plantpal-frontend-he4yc1tuz-taofique-islams-projects.vercel.app", // latest Vercel deployment
   "http://localhost:5173", // optional for local dev
 ];
 
