@@ -21,9 +21,16 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // Postman or server-to-server
-      if (allowedOrigins.includes(origin)) callback(null, true);
-      else callback(new Error("Not allowed by CORS"));
+      // allow Postman or server-to-server requests
+      if (!origin) return callback(null, true);
+
+      // allow any frontend deployed URL (for now)
+      if (allowedOrigins.includes(origin) || origin.includes("vercel.app")) {
+        return callback(null, true);
+      }
+
+      console.log("Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
